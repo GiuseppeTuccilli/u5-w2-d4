@@ -1,0 +1,31 @@
+package giuseppetuccilli.u5_w2_d4.exeptions;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDate;
+
+@RestControllerAdvice
+public class ExeptionHandler {
+    @ExceptionHandler(ValidExeption.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorsListPayload handleValidation(ValidExeption ex) {
+        return new ErrorsListPayload(ex.getMessage(), ex.getErrorsMessages());
+    }
+
+    @ExceptionHandler(BadRequestExeption.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorsPayload handleBadReq(BadRequestExeption ex) {
+        return new ErrorsPayload(ex.getMessage(), LocalDate.now());
+    }
+
+    @ExceptionHandler(NotFoundExeption.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorsPayload handleNotFound(NotFoundExeption ex) {
+        return new ErrorsPayload(ex.getMessage(), LocalDate.now());
+    }
+
+
+}
