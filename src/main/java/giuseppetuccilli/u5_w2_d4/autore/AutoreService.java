@@ -22,6 +22,8 @@ import java.util.Optional;
 
 @Service
 public class AutoreService {
+    private static final long MAX_SIZE = 5 * 1024 * 1024;
+    private static final List<String> ALLOWED_TYPES = List.of("image/png", "image/jpg", "image/jpeg");
     @Autowired
     private AutoreRepository autoreRepository;
     @Autowired
@@ -115,6 +117,12 @@ public class AutoreService {
         if (file.isEmpty()) {
             throw new BadRequestExeption("file vuoto");
         }
+        if (file.getSize() > MAX_SIZE) {
+            throw new BadRequestExeption("la dimesnione del file super quella massima consentia");
+        }
+        if (!ALLOWED_TYPES.contains(file.getContentType())) {
+            throw new BadRequestExeption("formato file non valido");
+        }
         try {
             Map res = imgUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
             String imgUrl = (String) res.get("url");
@@ -122,7 +130,7 @@ public class AutoreService {
             autoreRepository.save(found);
             return found;
         } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage());
+            throw new BadRequestExeption("errore nell'upload");
         }
 
     }
