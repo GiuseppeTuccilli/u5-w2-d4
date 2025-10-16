@@ -118,7 +118,7 @@ public class AutoreService {
             throw new BadRequestExeption("file vuoto");
         }
         if (file.getSize() > MAX_SIZE) {
-            throw new BadRequestExeption("la dimesnione del file super quella massima consentia");
+            throw new BadRequestExeption("la dimesnione del file supera quella massima consentia");
         }
         if (!ALLOWED_TYPES.contains(file.getContentType())) {
             throw new BadRequestExeption("formato file non valido");

@@ -1,16 +1,22 @@
 package giuseppetuccilli.u5_w2_d4.blog;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import giuseppetuccilli.u5_w2_d4.autore.Autore;
 import giuseppetuccilli.u5_w2_d4.autore.AutoreService;
+import giuseppetuccilli.u5_w2_d4.exeptions.BadRequestExeption;
 import giuseppetuccilli.u5_w2_d4.exeptions.NotFoundExeption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,6 +26,8 @@ public class BlogService {
     private AutoreService autoreService;
     @Autowired
     private BlogRepository blogRepository;
+    @Autowired
+    private Cloudinary coverUploader;
 
     public Page<Blog> findAll(int pageNumber) {
         Pageable pg = PageRequest.of(pageNumber, 10);
@@ -59,5 +67,21 @@ public class BlogService {
         Blog found = findById(id);
         blogRepository.delete(found);
 
+    }
+
+    public Blog changeCover(int id, MultipartFile file) {
+        Blog found = findById(id);
+        if (file.isEmpty()) {
+            throw new BadRequestExeption("il file è vuoto");
+        }
+        try {
+            Map result = coverUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            String coverUrl = (String) result.get("url");
+            found.setCover(coverUrl);
+            blogRepository.save(found);
+            return found;
+        } catch (IOException ex) {
+            throw new BadRequestExeption("errore nell'upload");
+        }
     }
 }

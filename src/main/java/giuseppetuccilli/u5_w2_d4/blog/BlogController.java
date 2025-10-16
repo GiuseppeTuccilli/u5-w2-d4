@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,5 +49,10 @@ public class BlogController {
     @DeleteMapping("/{blogId}")
     public void deleteBlog(@PathVariable int blogId) {
         this.blogService.findAndDelete(blogId);
+    }
+
+    @PatchMapping("/{blogId}/cover")
+    public Blog uploadCover(@PathVariable int blogId, @RequestParam("cover") MultipartFile file) {
+        return blogService.changeCover(blogId, file);
     }
 }
