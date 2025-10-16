@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,5 +48,11 @@ public class AutoreController {
     public void deleteAutore(@PathVariable int autId) {
         autoreService.deleteAutore(autId);
         System.out.println("autore eliminato");
+    }
+
+    @PatchMapping("/{autId}/avatar")
+    public Autore uploadAvatar(@PathVariable int autId, @RequestParam("avatar") MultipartFile file) {
+        System.out.println(file.getOriginalFilename());
+        return autoreService.changeAvatar(file, autId);
     }
 }

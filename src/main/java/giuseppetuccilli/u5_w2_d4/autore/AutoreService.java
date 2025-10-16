@@ -1,5 +1,7 @@
 package giuseppetuccilli.u5_w2_d4.autore;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import giuseppetuccilli.u5_w2_d4.blog.Blog;
 import giuseppetuccilli.u5_w2_d4.blog.BlogRepository;
 import giuseppetuccilli.u5_w2_d4.exeptions.BadRequestExeption;
@@ -10,9 +12,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -21,6 +26,8 @@ public class AutoreService {
     private AutoreRepository autoreRepository;
     @Autowired
     private BlogRepository blogRepository;
+    @Autowired
+    private Cloudinary imgUploader;
 
 
     public Page<Autore> fidAll(int pageNumber) {
@@ -99,5 +106,24 @@ public class AutoreService {
         }
         autoreRepository.delete(found);
         System.out.println("autore eliminato");
+    }
+
+    public Autore changeAvatar(MultipartFile file, int id) {
+        //controllo utente
+        Autore found = findById(id);
+
+        if (file.isEmpty()) {
+            throw new BadRequestExeption("file vuoto");
+        }
+        try {
+            Map res = imgUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            String imgUrl = (String) res.get("url");
+            found.setAvatar(imgUrl);
+            autoreRepository.save(found);
+            return found;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+
     }
 }
