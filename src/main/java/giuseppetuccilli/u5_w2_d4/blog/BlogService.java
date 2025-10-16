@@ -19,8 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+
 @Service
 public class BlogService {
+    private static final long MAX_SIZE = 5 * 1024 * 1024;
+    private static List<String> ALLOWED_TYPES = List.of("image/jpg", "image/jpeg", "image/png");
     private List<Blog> blogList = new ArrayList<>();
     @Autowired
     private AutoreService autoreService;
@@ -73,6 +76,12 @@ public class BlogService {
         Blog found = findById(id);
         if (file.isEmpty()) {
             throw new BadRequestExeption("il file è vuoto");
+        }
+        if (file.getSize() > MAX_SIZE) {
+            throw new BadRequestExeption("la dimensione del file super quella massima consentita");
+        }
+        if (!ALLOWED_TYPES.contains(file.getContentType())) {
+            throw new BadRequestExeption("il formato del file non è supportato");
         }
         try {
             Map result = coverUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
